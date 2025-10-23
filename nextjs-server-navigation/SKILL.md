@@ -10,19 +10,11 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 **Server Components use DIFFERENT navigation methods than Client Components!**
 
-When the prompt says:
-- "demonstrates **navigation** patterns"
-- "**navigate** to another page"
-- "add a **link** to"
-- "**redirect** to"
-
-→ **Use `<Link>` component or `redirect()` function**
-→ **DO NOT add `'use client'`**
-→ **DO NOT use `useRouter()`**
+When requirements call for server-rendered navigation—for example, linking to other pages, redirecting after a check, or demonstrating routing patterns—prefer `<Link>` and `redirect()` within Server Components. You still avoid `'use client'` unless a client-only API is involved.
 
 ## The Pattern
 
-**Prompt:** "Create a server component that demonstrates proper navigation patterns"
+**Scenario:** build a server component that demonstrates proper navigation patterns
 
 **✅ CORRECT Solution:**
 ```typescript

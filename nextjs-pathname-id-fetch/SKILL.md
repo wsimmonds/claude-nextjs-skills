@@ -6,32 +6,28 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 # Next.js: Pathname ID Fetch Pattern
 
-## ⚠️ CRITICAL RECOGNITION
+## When This Pattern Applies
 
-When you see these phrases in a requirement:
-- "uses the **path name ID**"
-- "uses the **pathname parameter**"
-- "**ID from the URL**"
-- "fetch using the **ID from the path**"
-- "based on **route parameter**"
+Use this pattern whenever a page needs to load data based on whatever identifier appears in the URL. Common scenarios include:
+- Detail pages for products, posts, or users (`/products/{id}`, `/blog/{slug}`)
+- Admin dashboards that drill into a selected resource (`/admin/orders/{orderId}`)
+- Documentation or knowledge bases with nested paths (`/docs/getting-started/installation`)
 
-→ **You MUST create a dynamic route with `[id]`**
+If the requirement says the data should change depending on the current URL path, the route segment must be dynamic (e.g., `[id]`, `[slug]`, `[...slug]`).
 
 ## The Pattern
 
-**Prompt:** "Create a server component that uses the path name ID to fetch a product"
-
-**✅ CORRECT Solution:**
+**✅ Recommended implementation**
 ```
-1. Create: app/[id]/page.tsx
-2. Access params with: const { id } = await params;
-3. Fetch data using the ID
-4. Return JSX with the data
+1. Create a dynamic folder: app/[id]/page.tsx
+2. Access the parameter: const { id } = await params;
+3. Fetch data using that identifier
+4. Render the requested information
 ```
 
-**❌ WRONG Solution:**
+**❌ Pitfall**
 ```
-1. Create: app/page.tsx  ← NO! Can't access path name ID here!
+Using app/page.tsx for this scenario prevents access to per-path identifiers.
 ```
 
 ## Complete Implementation Example
@@ -130,7 +126,7 @@ export default async function Page({
 ❌ app/products/[id]/page.tsx     (only if explicitly required!)
 ```
 
-Unless the prompt specifically says "create a route at /products/[id]", use the simpler `app/[id]/page.tsx`.
+Unless requirements explicitly call for `/products/[id]`, keep the structure at the top level (`app/[id]/page.tsx`).
 
 ## TypeScript: NEVER Use `any` Type
 
@@ -251,15 +247,15 @@ export default async function ProductPage({
 
 ## Quick Checklist
 
-When you see "uses the path name ID":
+Before shipping a pathname-driven detail page, confirm:
 
-- [ ] Create `app/[id]/page.tsx` (folder with brackets)
-- [ ] Make it an async server component (no 'use client')
-- [ ] Accept `params` prop with type `Promise<{ id: string }>`
-- [ ] Await params: `const { id } = await params;`
-- [ ] Use the ID to fetch data
-- [ ] Return JSX with the fetched data
-- [ ] Use proper TypeScript types (no `any`)
+- [ ] The route folder uses brackets (e.g., `app/[id]/page.tsx`)
+- [ ] The component stays server-side (no `'use client'` needed)
+- [ ] The `params` prop is typed as `Promise<{ id: string }>` for Next.js 15+
+- [ ] You await the params and read the identifier safely
+- [ ] Data fetching logic uses that identifier
+- [ ] Rendering handles loading/error states appropriately
+- [ ] Types are explicit—never fall back to `any`
 
 ## When to Use the Comprehensive Skill Instead
 

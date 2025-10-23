@@ -1,6 +1,6 @@
 ---
 name: nextjs-advanced-routing
-description: Guide for advanced Next.js App Router patterns including Route Handlers, Parallel Routes, Intercepting Routes, Server Actions, error boundaries, draft mode, and streaming with Suspense. CRITICAL for server actions (action.ts, actions.ts files, 'use server' directive), setting cookies from client components, and form handling. Activates when prompt mentions server action, 'use server', action.ts, actions.ts, form submission, onClick calling server function, setting cookies, mutations, API routes, route.ts, parallel routes, intercepting routes, or streaming. Essential for separating server actions from client components.
+description: Guide for advanced Next.js App Router patterns including Route Handlers, Parallel Routes, Intercepting Routes, Server Actions, error boundaries, draft mode, and streaming with Suspense. CRITICAL for server actions (action.ts, actions.ts files, 'use server' directive), setting cookies from client components, and form handling. Use when requirements involve server actions, form submissions, cookies, mutations, API routes, `route.ts`, parallel routes, intercepting routes, or streaming. Essential for separating server actions from client components.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -55,47 +55,31 @@ Use this skill when:
 
 ## ⚠️ CRITICAL: Server Action File Naming and Location
 
-**When the prompt specifies a file name, use EXACTLY that name!**
+When work requirements mention a specific filename, follow that instruction exactly. If no name is given, pick the option that best matches the project conventions—`app/actions.ts` is a safe default for collections of actions, while `app/action.ts` works for a single form handler.
 
-### action.ts vs actions.ts
+### Choosing between `action.ts` and `actions.ts`
 
-```
-Prompt says: "create server action in a file called action.ts"
-→ Create: app/action.ts (singular!)
+- **Match existing patterns:** Check whether the project already has an actions file and extend it if appropriate.
+- **Single vs multiple exports:** Prefer `action.ts` for a single action, and `actions.ts` for a group of related actions.
+- **Explicit requirement:** If stakeholders call out a specific name, do not change it.
 
-Prompt says: "create server action in a file called actions.ts"
-→ Create: app/actions.ts (plural!)
+**Location guidelines**
+- Server actions belong under the `app/` directory so they can participate in the App Router tree.
+- Keep the file alongside the UI that invokes it unless shared across multiple routes.
+- Avoid placing actions in `lib/` or `utils/` unless they are triggered from multiple distant routes and remain server-only utilities.
 
-Prompt says nothing specific:
-→ Use: app/actions.ts (plural is conventional)
-```
-
-**Location:**
-- Server actions go in the `app/` directory
-- File name: `action.ts` or `actions.ts` (NOT in lib/, utils/, or other folders)
-- Location: `app/action.ts` or `app/actions.ts`
-
-**✅ CORRECT:**
+**Example placement**
 ```
 app/
-├── action.ts       ← If prompt says "action.ts"
-└── page.tsx
-```
-
-**❌ WRONG:**
-```
-app/
-├── actions.ts      ← Wrong if prompt said "action.ts" (singular!)
-└── page.tsx
-
-lib/
-└── action.ts       ← Wrong location!
+├── actions.ts       ← Shared actions that support multiple routes
+└── dashboard/
+    └── action.ts    ← Route-specific action colocated with a single page
 ```
 
 ### Example: Creating action.ts
 
 ```typescript
-// app/action.ts (if prompt says "action.ts")
+// app/action.ts (single-action example)
 'use server';
 
 export async function submitForm(formData: FormData) {
@@ -108,7 +92,7 @@ export async function submitForm(formData: FormData) {
 ### Example: Creating actions.ts
 
 ```typescript
-// app/actions.ts (if prompt says "actions.ts")
+// app/actions.ts (multiple related actions)
 'use server';
 
 export async function createPost(formData: FormData) {
@@ -120,7 +104,7 @@ export async function deletePost(id: string) {
 }
 ```
 
-**Remember:** If the prompt specifies the exact file name, use EXACTLY that name!
+**Remember:** When a project requirement spells out an exact filename, mirror it precisely.
 
 ## ⚠️ CRITICAL: Server Actions Return Types - Form Actions MUST Return Void
 
@@ -396,9 +380,9 @@ export async function createPost(formData: FormData) {
 ### ⚠️ CRITICAL: Server Actions File Organization
 
 **File Naming Precision:**
-- When a prompt specifies a filename (e.g., "create a server action in a file called action.ts"), use the EXACT filename specified
-- Common filenames: `action.ts` (singular) or `actions.ts` (plural) - pay attention to which is requested
-- Place in the appropriate directory: typically `app/action.ts` or `app/actions.ts`
+- When stakeholders specify a filename (e.g., “create a server action in a file called `action.ts`”), mirror it exactly.
+- Common filenames: `action.ts` (singular) or `actions.ts` (plural)—choose the one that matches the brief or existing code.
+- Place the file in the appropriate directory: typically `app/action.ts` or `app/actions.ts`.
 
 **Two Patterns for 'use server' Directive:**
 
@@ -746,13 +730,13 @@ Before implementing parallel routes, identify WHERE they should live in your rou
 
 ### Route Scope Decision Process
 
-**When the prompt mentions a specific feature or page:**
+**When the requirement mentions a specific feature or page:**
 ```
 "Create a [feature-name] with parallel routes for X and Y"
 → Structure: app/[feature-name]/@x/ and app/[feature-name]/@y/
 ```
 
-**When the prompt is about app-wide layout:**
+**When the requirement covers app-wide layout:**
 ```
 "Create an app with parallel routes for X and Y"
 → Structure: app/@x/ and app/@y/
@@ -786,7 +770,7 @@ app/
 
 ### Decision Criteria
 
-1. **Analyze the prompt** - Look for specific feature/page names
+1. **Analyze the requirements** - Look for specific feature/page names
    - Mentions a specific noun/feature? → Create under `app/[that-feature]/`
    - General app-level description? → Determine if root or new route
 
@@ -804,7 +788,7 @@ app/
 
 **Example 1: Feature-specific parallel routes**
 ```
-Prompt: "Build a user profile page with tabs for posts and activity"
+Scenario: a user profile page needs tabs for posts and activity
 
 Analysis:
 - "user profile page" = specific feature
@@ -823,7 +807,7 @@ app/
 
 **Example 2: App-wide parallel routes**
 ```
-Prompt: "Create an application layout with sidebar and main content"
+Scenario: the overall application layout must expose sidebar and main content slots
 
 Analysis:
 - "application layout" = root level
@@ -841,7 +825,7 @@ app/
 
 **Example 3: Nested section parallel routes**
 ```
-Prompt: "Add an analytics view with charts and tables to the admin panel"
+Scenario: the admin area adds an analytics view with charts and tables
 
 Analysis:
 - "admin panel" = existing section
@@ -862,14 +846,14 @@ app/
 
 ### Quick Reference
 
-| Prompt Pattern | Route Scope | Example Structure |
+| Requirement Pattern | Route Scope | Example Structure |
 |---------------|-------------|-------------------|
-| "Create [feature] with..." | `app/[feature]/` | `app/profile/@tab/` |
-| "Add [section] to [parent]..." | `app/[parent]/[section]/` | `app/admin/analytics/@view/` |
-| "Build app with..." | `app/` | `app/@sidebar/` |
-| "[Page name] with tabs..." | `app/[page]/` | `app/settings/@panel/` |
+| Feature-specific requirement | `app/[feature]/` | `app/profile/@tab/` |
+| Section inside a parent area | `app/[parent]/[section]/` | `app/admin/analytics/@view/` |
+| App-wide layout requirement | `app/` | `app/@sidebar/` |
+| Page with multiple panels | `app/[page]/` | `app/settings/@panel/` |
 
-**CRITICAL RULE:** Always analyze the prompt for scope indicators before defaulting to root-level parallel routes.
+**CRITICAL RULE:** Always analyze the requirement for scope indicators before defaulting to root-level parallel routes.
 
 ## Parallel Routes
 

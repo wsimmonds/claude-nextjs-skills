@@ -1,6 +1,6 @@
 ---
 name: nextjs-dynamic-routes-params
-description: Guide for Next.js App Router dynamic routes and pathname parameters. CRITICAL when prompt mentions "path name ID", "pathname parameter", "URL parameter", "route parameter", "fetch by ID", or "[id]/[slug]". Use for creating dynamic route segments ([id], [slug]), accessing params prop, building ID/slug-based pages, or fetching resources (products, users, posts) by ID. Activates on phrases like "uses the pathname", "path name ID", "dynamic route", "[id]", "[slug]", "params prop", "route parameter", or "fetch from URL". Prevents over-nesting (app/[id] not app/products/[id]).
+description: Guide for Next.js App Router dynamic routes and pathname parameters. Use when building pages that depend on URL segments (IDs, slugs, nested paths), accessing the `params` prop, or fetching resources by identifier. Helps avoid over-nesting by defaulting to the simplest route structure (e.g., `app/[id]` instead of `app/products/[id]` unless the URL calls for it).
 allowed-tools:
   - Read
   - Write
@@ -23,35 +23,32 @@ Use this skill when:
 
 ## ⚠️ RECOGNIZING WHEN YOU NEED DYNAMIC ROUTES
 
-**Key Phrases That Indicate Dynamic Routes:**
+**Look for requirements that tie data to the URL path.**
 
-When you see ANY of these phrases in a requirement, you MUST create a dynamic route with `[brackets]`:
-- "uses the **path name** ID"
-- "uses the **pathname** parameter"
-- "fetches data based on the **URL**"
-- "takes an **ID from the URL**"
-- "gets the **ID from the path**"
-- "based on route **parameters**"
-- "dynamic **ID** in the route"
-- "**[slug]**, **[id]**, **[postId]**, etc."
+Create a dynamic segment (`[param]`) whenever the UI depends on part of the pathname. Typical signals include:
+- Details pages that reference “the item’s ID/slug from the URL”
+- Copy that calls out path segments (e.g., `/products/{id}`, `/blog/{slug}`)
+- Requirements to fetch data “based on whichever resource is being visited”
+- Navigation flows where one page links to `/something/{identifier}`
 
-**✅ CORRECT Response to "uses the pathname ID":**
+**✅ Dynamic route response**
 ```
-Create dynamic route: app/[id]/page.tsx
-Access ID with: const { id } = await params;
+Requirement: display product information based on whichever ID appears in the URL
+Implementation: app/[id]/page.tsx
+Access parameter with: const { id } = await params;
 ```
 
-**❌ WRONG Response:**
+**❌ Static-page response**
 ```
-Create static route: app/page.tsx (NO - this can't access pathname ID!)
+Implementation: app/page.tsx  ← cannot access per-path identifiers
 ```
 
-**Example Prompts That REQUIRE Dynamic Routes:**
-1. "Create a server component that uses the path name ID" → `app/[id]/page.tsx`
-2. "Fetch a product using the ID from the URL" → `app/[id]/page.tsx` or `app/products/[id]/page.tsx`
-3. "Build a page that shows a blog post by slug" → `app/blog/[slug]/page.tsx` or `app/[slug]/page.tsx`
+**Example requirements that lead to dynamic routes**
+1. “Show a product page that loads whichever product ID appears in the URL” → `app/[id]/page.tsx` or `app/products/[id]/page.tsx`
+2. “Render a blog article based on its slug” → `app/blog/[slug]/page.tsx` or `app/[slug]/page.tsx`
+3. “Support nested docs such as /docs/getting-started/installation” → `app/docs/[...slug]/page.tsx`
 
-**The Rule:** If data depends on a URL segment, you NEED a dynamic route with `[brackets]`.
+**Core rule:** If data varies with a URL segment, the folder name needs matching brackets.
 
 ## ⚠️ CRITICAL: Avoid Over-Engineering Route Structure
 
